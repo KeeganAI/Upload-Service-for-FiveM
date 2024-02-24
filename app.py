@@ -11,9 +11,9 @@ SAVE_REQUEST_DETAILS = True
 
 ALLOWED_EXTENSIONS = {'mp3', 'wav', 'mp4', 'webm', 'avi', 'png', 'jpg', 'jpeg', 'gif', 'flac', 'webp'}
 API_KEYS = {
-    'Video': "D&zE#MyK5GSoB@@&gA!G84etXazdxbLDCrkTHqyH",
-    'Image': "$Eycm3gg$EDm&S6aY?4FeJHoF#4YpTJ4x4LNq73E",
-    'Audio': "Q&pJmApo?gBPYAkyENCijF5mPc&z4T&gAtF7E38#",
+    'Video': "INSERT_A_NEW_API_KEY_HERE",
+    'Image': "INSERT_A_NEW_API_KEY_HERE",
+    'Audio': "INSERT_A_NEW_API_KEY_HERE",
 }
 FOLDERS = {
     'mp3': 'Audio', 'wav': 'Audio', 'mp4': 'Video', 'webm': 'Video', 'avi': 'Video',

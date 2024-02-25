@@ -1,7 +1,8 @@
 # Flask Upload Service for FiveM
 
 ## Overview
-This updated Flask application offers a streamlined upload service tailored for the "lb-phone" resource in FiveM and other similar applications. It addresses common issues faced when integrating with Discord webhooks, such as file availability, rate limiting, and size restrictions, providing a reliable, self-hosted alternative for file management.
+This application offers a simplified upload service tailored to the "lb-phone" resource in FiveM. 
+It addresses common issues faced while integrating with Discord Webhooks, such as file availability, rate limits or paid services...
 
 ## Features
 - **API Key Authentication**: Enhances security by requiring distinct API keys for audio, video, and image files, ensuring that file uploads are authenticated and authorized.

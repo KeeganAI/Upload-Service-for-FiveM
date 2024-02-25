@@ -6,22 +6,28 @@ from datetime import datetime
 
 app = Flask(__name__)
 
-BASE_UPLOAD_FOLDER = 'C:\\Users\\Keeg\\Desktop\\pyTest\\uploads'
-SAVE_REQUEST_DETAILS = True  
+BASE_UPLOAD_FOLDER = 'D:\\xampp\\htdocs\\uploads'
+FILE_ACCESS_URL = 'http://localhost/uploads'
 
-ALLOWED_EXTENSIONS = {'mp3', 'wav', 'mp4', 'webm', 'avi', 'png', 'jpg', 'jpeg', 'gif', 'flac', 'webp'}
+SAVE_REQUEST_DETAILS = True
+
+ALLOWED_EXTENSIONS = {'ogg', 'mp4', 'webp'}
+
 API_KEYS = {
     'Video': "INSERT_A_NEW_API_KEY_HERE",
     'Image': "INSERT_A_NEW_API_KEY_HERE",
     'Audio': "INSERT_A_NEW_API_KEY_HERE",
 }
 FOLDERS = {
-    'mp3': 'Audio', 'wav': 'Audio', 'mp4': 'Video', 'webm': 'Video', 'avi': 'Video',
-    'png': 'Image', 'jpg': 'Image', 'jpeg': 'Image', 'gif': 'Image', 'flac': 'Audio', 'webp': 'Image',
+    'ogg': 'Audio', 'mp3': 'Audio', 
+    'mp4': 'Video', 'webm': 'Video',
+    'png': 'Image', 'gif': 'Image', 'webp': 'Image',
 }
 
 def allowed_file(filename):
-    return filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+    extension = filename.rsplit('.', 1)[1].lower()
+    print(f"file extension received: .{extension}")
+    return extension in ALLOWED_EXTENSIONS
 
 def check_api_key(headers, file_type):
     api_key = headers.get('Authorization')
@@ -60,20 +66,18 @@ def upload_file():
     save_request_details_if_enabled(request)
     
     if 'file' not in request.files:
-        return jsonify({'success': False, 'status': 400, 'data': {'error': 'No file part'}}), 400
+        return jsonify({'success': False, 'status': 400, 'data': {'error': 'No file'}}), 400
 
     file = request.files['file']
-    
-    if file.filename == '':
-        return jsonify({'success': False, 'status': 400, 'data': {'error': 'No selected file'}}), 400
+    if file.filename == '' or not allowed_file(file.filename):
+        return jsonify({'success': False, 'status': 400, 'data': {'error': 'No file or file not allowed'}}), 400
     
     extension = file.filename.rsplit('.', 1)[1].lower()
-    if not allowed_file(file.filename):
-        return jsonify({'success': False, 'status': 400, 'data': {'error': 'File not allowed'}}), 400
-
     file_type = FOLDERS.get(extension)
-    if not file_type or not check_api_key(request.headers, file_type):
-        return jsonify({'success': False, 'status': 403, 'data': {'error': 'Invalid API key or file type'}}), 403
+    if not check_api_key(request.headers, file_type):
+        response_data = {'success': False, 'status': 403, 'data': {'error': 'Invalid API key or file type'}}
+        print(json.dumps(response_data, indent=4))
+        return jsonify(response_data), 403
 
     upload_folder = os.path.join(BASE_UPLOAD_FOLDER, file_type)
     os.makedirs(upload_folder, exist_ok=True)
@@ -83,13 +87,15 @@ def upload_file():
     file_path = os.path.join(upload_folder, filename)
     file.save(file_path)
 
-    save_request_details_if_enabled(request, {'file_saved': filename, 'status': 'success'})
+    file_url = f'{FILE_ACCESS_URL}/{file_type}/{filename}'
 
-    return jsonify({'success': True, 'status': 200, 'data': {'url': f'http://{request.host}/uploads/{file_type}/{filename}'}}), 200
+    response = {'success': True, 'status': 200, 'url': file_url}
+    return jsonify(response), 200
 
 @app.route('/uploads/<file_type>/<filename>')
 def uploaded_file(file_type, filename):
-    return send_from_directory(os.path.join(BASE_UPLOAD_FOLDER, file_type), filename)
+    directory = os.path.join(BASE_UPLOAD_FOLDER, file_type)
+    return send_from_directory(directory, filename)
 
 if __name__ == '__main__':
     app.run(debug=True)
